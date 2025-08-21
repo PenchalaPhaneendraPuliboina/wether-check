@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Weather Result</title>
+</head>
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(to right, lightblue, lightpink, lightgreen);
+        text-align: center;
+    }
+
+    .container {
+        width: 80%;
+        max-width: 600px;
+        margin: 30px auto;
+        padding: 20px;
+        /* background: linear-gradient(130deg, lightblue, lightgreen, rgb(88, 138, 135)); */
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0px 5px 10px rgba(26, 7, 7, 0.1);
+    }
+
+    h1 {
+        font-size: 2rem;
+        margin-bottom: 20px;
+        background: linear-gradient(150deg, lightblue, orange, green);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    #weather-form {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    input[type="text"] {
+        padding: 8px;
+        width: 60%;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    button {
+        padding: 8px 16px;
+        background-color: teal;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    #weather-result {
+        margin-top: 20px;
+    }
+
+    .weather-icon {
+        width: 64px;
+        height: 64px;
+    }
+</style>
+
+<body>
+    <header>
+        <h1>Weather API</h1>
+    </header>
+
+    <div class="container">
+        <form id="weather-form">
+            <input type="text" id="location" placeholder="Enter location" required />
+            <button type="submit">Get Weather</button>
+        </form>
+        <div id="weather-result"></div>
+    </div>
+
+    <script>
+        const weatherForm = document.querySelector('#weather-form');
+        const weatherResult = document.querySelector('#weather-result');
+
+        weatherForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const location = document.querySelector('#location').value.trim();
+
+            if (!location) {
+                weatherResult.innerHTML = "<p>Please enter a location.</p>";
+                return;
+            }
+
+            const apiKey = 'YOUR_API_KEY_HERE'; // Replace with your actual WeatherAPI key
+            const url = `https://api.weatherapi.com/v1/current.json?key=38589406b8094eedbe992520252107&q=${encodeURIComponent(location)}&aqi=no`;
+
+            weatherResult.innerHTML = "<p>Loading...</p>";
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (response.ok) {
+                    const { location: loc, current } = data;
+
+                    weatherResult.innerHTML = `
+                        <h3>Weather in ${loc.name}, ${loc.country}</h3>
+                        <img class="weather-icon" src="https:${current.condition.icon}" alt="${current.condition.text}">
+                        <p><strong>Temperature:</strong> ${current.temp_c}°C</p>
+                        <p><strong>Condition:</strong> ${current.condition.text}</p>
+                        <p><strong>Humidity:</strong> ${current.humidity}%</p>
+                        <p><strong>Wind Speed:</strong> ${current.wind_kph} km/h</p>
+                    `;
+                } else {
+                    weatherResult.innerHTML = `<p>Error: ${data.error.message}</p>`;
+                }
+            } catch (error) {
+                weatherResult.innerHTML = `<p>Something went wrong. Please try again later.</p>`;
+                console.error(error);
+            }
+        });
+    </script>
+</body>
+
+</html>
